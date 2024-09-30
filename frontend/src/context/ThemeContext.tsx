@@ -1,6 +1,11 @@
-// src/context/ThemeContext.tsx
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
 
+// Definir las props para ThemeProvider, incluyendo el prop 'children'
+interface ThemeProviderProps {
+  children: ReactNode;
+}
+
+// Definir el contexto con los valores predeterminados
 interface ThemeContextProps {
   isDarkMode: boolean;
   toggleTheme: () => void;
@@ -11,7 +16,8 @@ export const ThemeContext = createContext<ThemeContextProps>({
   toggleTheme: () => {},
 });
 
-export const ThemeProvider: React.FC = ({ children }) => {
+// Definir ThemeProvider con las props correspondientes
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     const storedTheme = localStorage.getItem('theme');
     return storedTheme === 'dark';

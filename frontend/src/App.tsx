@@ -1,6 +1,5 @@
-// src/App.tsx
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -17,6 +16,7 @@ import AuthSuccess from './pages/AuthSuccess';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ChatWidget from './components/ChatWidget';
+import PrivateRoute from './components/PrivateRoute'; // Asegúrate de importar correctamente PrivateRoute
 
 const App: React.FC = () => {
   return (
@@ -27,20 +27,22 @@ const App: React.FC = () => {
             <div className="flex flex-col min-h-screen">
               <Header />
               <main className="flex-grow">
-                <Switch>
-                  <Route path="/" component={HomePage} exact />
-                  <Route path="/product/:id" component={ProductPage} />
-                  <Route path="/login" component={LoginPage} />
-                  <Route path="/register" component={RegisterPage} />
-                  <Route path="/cart" component={CartPage} />
+                <Routes>
                   {/* Rutas públicas */}
-                  <PrivateRoute path="/cart" component={CartPage} />
-                  <PrivateRoute path="/wishlist" component={WishlistPage} />
-                  <PrivateRoute path="/checkout" component={CheckoutPage} />
-                  <PrivateRoute path="/profile" component={ProfilePage} />
-                  <Route path="/auth-success" component={AuthSuccess} />
-                  {/* Puedes agregar más rutas según sea necesario */}
-                </Switch>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/product/:id" element={<ProductPage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/auth-success" element={<AuthSuccess />} />
+
+                  {/* Rutas protegidas */}
+                  <Route element={<PrivateRoute />}>
+                    <Route path="/cart" element={<CartPage />} />
+                    <Route path="/wishlist" element={<WishlistPage />} />
+                    <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/profile" element={<ProfilePage />} />
+                  </Route>
+                </Routes>
               </main>
               <ChatWidget />
               <Footer />

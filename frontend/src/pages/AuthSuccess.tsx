@@ -1,10 +1,9 @@
-// frontend/src/pages/AuthSuccess.tsx
 import React, { useEffect, useContext } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const AuthSuccess: React.FC = () => {
-  const history = useHistory();
+  const navigate = useNavigate(); // Reemplazar useHistory por useNavigate
   const { setUser } = useContext(AuthContext);
 
   useEffect(() => {
@@ -14,11 +13,11 @@ const AuthSuccess: React.FC = () => {
       localStorage.setItem('token', token);
       // Aquí puedes implementar una función para obtener el usuario actual
       // utilizando el token y actualizar el estado 'user'
-      history.push('/');
+      navigate('/'); // Reemplazar history.push('/') por navigate('/')
     } else {
-      history.push('/login');
+      navigate('/login'); // Reemplazar history.push('/login') por navigate('/login')
     }
-  }, [history, setUser]);
+  }, [navigate, setUser]);
 
   return <div>Autenticando...</div>;
 };

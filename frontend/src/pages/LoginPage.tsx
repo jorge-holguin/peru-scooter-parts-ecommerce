@@ -2,31 +2,31 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { GoogleIcon, GithubIcon } from '../components/Icons'; // Importamos los iconos personalizados
+import { FaGoogle, FaGithub } from 'react-icons/fa';
 
 const LoginPage: React.FC = () => {
-    const { login } = useContext(AuthContext);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const navigate = useNavigate();
-  
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      try {
-        await login(email, password);
-        navigate('/');
-      } catch (error) {
-        console.error('Error al iniciar sesión:', error);
-      }
-    };
-  
-    const handleGoogleLogin = () => {
-      window.location.href = 'http://localhost:5000/api/auth/google';
-    };
-  
-    const handleGitHubLogin = () => {
-      window.location.href = 'http://localhost:5000/api/auth/github';
-    };
+  const { login } = useContext(AuthContext);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await login(email, password);
+      navigate('/');
+    } catch (error) {
+      console.error('Error al iniciar sesión:', error);
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = 'http://localhost:5000/api/auth/google';
+  };
+
+  const handleGitHubLogin = () => {
+    window.location.href = 'http://localhost:5000/api/auth/github';
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -86,14 +86,14 @@ const LoginPage: React.FC = () => {
             onClick={handleGoogleLogin}
             className="flex items-center px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
-            <GoogleIcon className="mr-2" size={20} />
+            <FaGoogle className="mr-2" size={20} />
             Google
           </button>
           <button
             onClick={handleGitHubLogin}
             className="flex items-center px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900"
           >
-            <GithubIcon className="mr-2" size={20} />
+            <FaGithub className="mr-2" size={20} />
             GitHub
           </button>
         </div>

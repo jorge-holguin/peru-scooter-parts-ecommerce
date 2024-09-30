@@ -1,7 +1,7 @@
-// src/context/AuthContext.tsx
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
 
+// Definición de la interfaz para el usuario
 interface User {
   id: string;
   name: string;
@@ -10,6 +10,7 @@ interface User {
   // Agrega otros campos si es necesario
 }
 
+// Definición de las props del contexto de autenticación
 interface AuthContextProps {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
@@ -18,6 +19,12 @@ interface AuthContextProps {
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
+// Definición de las props para el AuthProvider
+interface AuthProviderProps {
+  children: ReactNode; // Definir children como ReactNode
+}
+
+// Crear el contexto con un valor predeterminado
 export const AuthContext = createContext<AuthContextProps>({
   user: null,
   login: async () => {},
@@ -26,7 +33,8 @@ export const AuthContext = createContext<AuthContextProps>({
   setUser: () => {},
 });
 
-export const AuthProvider: React.FC = ({ children }) => {
+// Definición del componente AuthProvider con las props de tipo AuthProviderProps
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
   const login = async (email: string, password: string) => {

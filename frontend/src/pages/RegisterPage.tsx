@@ -1,13 +1,12 @@
-// src/pages/RegisterPage.tsx
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useHistory, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const history = useHistory();
+  const navigate = useNavigate(); // Reemplazar useHistory por useNavigate
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,7 +16,7 @@ const RegisterPage: React.FC = () => {
         email,
         password,
       });
-      history.push('/login');
+      navigate('/login'); // Reemplazar history.push por navigate
     } catch (error) {
       console.error('Error al registrar:', error);
     }

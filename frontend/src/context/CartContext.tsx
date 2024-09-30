@@ -1,6 +1,6 @@
-// src/context/CartContext.tsx
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
 
+// Definir la estructura de un producto
 interface Product {
   _id: string;
   name: string;
@@ -8,11 +8,13 @@ interface Product {
   images: string[];
 }
 
+// Definir la estructura de un ítem en el carrito
 interface CartItem {
   product: Product;
   quantity: number;
 }
 
+// Definir las props del contexto de carrito
 interface CartContextProps {
   cartItems: CartItem[];
   addToCart: (product: Product, quantity: number) => void;
@@ -21,6 +23,12 @@ interface CartContextProps {
   totalPrice: number;
 }
 
+// Definir las props para el CartProvider
+interface CartProviderProps {
+  children: ReactNode; // Definir el prop 'children' como ReactNode
+}
+
+// Crear el contexto con valores iniciales predeterminados
 export const CartContext = createContext<CartContextProps>({
   cartItems: [],
   addToCart: () => {},
@@ -29,10 +37,11 @@ export const CartContext = createContext<CartContextProps>({
   totalPrice: 0,
 });
 
-export const CartProvider: React.FC = ({ children }) => {
+// Definir el CartProvider con el tipo de las props que incluye 'children'
+export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-  // Cargar el carrito desde localStorage al montar
+  // Cargar el carrito desde localStorage al montar el componente
   useEffect(() => {
     const storedCart = localStorage.getItem('cart');
     if (storedCart) {
@@ -40,11 +49,12 @@ export const CartProvider: React.FC = ({ children }) => {
     }
   }, []);
 
-  // Guardar el carrito en localStorage cuando cambie
+  // Guardar el carrito en localStorage cada vez que se actualice el carrito
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
+  // Función para añadir un producto al carrito
   const addToCart = (product: Product, quantity: number) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find(
@@ -62,16 +72,19 @@ export const CartProvider: React.FC = ({ children }) => {
     });
   };
 
+  // Función para remover un producto del carrito
   const removeFromCart = (productId: string) => {
     setCartItems((prevItems) =>
       prevItems.filter((item) => item.product._id !== productId)
     );
   };
 
+  // Función para limpiar el carrito
   const clearCart = () => {
     setCartItems([]);
   };
 
+  // Calcular el precio total del carrito
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.product.price * item.quantity,
     0
