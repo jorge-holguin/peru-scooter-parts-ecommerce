@@ -84,3 +84,12 @@ export const loginUser = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Error en el servidor', error: error.message });
   }
 };
+
+export const getCurrentUser = async (req: Request, res: Response) => {
+  try {
+    const user = await User.findById((req as any).user.id).select('-password');
+    res.json({ user });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener el usuario actual' });
+  }
+};

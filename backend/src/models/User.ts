@@ -6,6 +6,9 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
+  avatar?: string;
+  googleId?: string;
+  githubId?: string;
   role: 'cliente' | 'administrador';
   comparePassword: (password: string) => Promise<boolean>;
   cart: {
@@ -33,10 +36,13 @@ const userSchema = new Schema<IUser>(
       required: [true, 'La contraseña es obligatoria'],
       minlength: [6, 'La contraseña debe tener al menos 6 caracteres'],
     },
+    avatar: { type: String },
+    googleId: { type: String },
+    githubId: { type: String },
     role: {
       type: String,
       enum: ['cliente', 'administrador'],
-      default: 'cliente',
+      default: 'administrador',
     },
     cart: [
         {

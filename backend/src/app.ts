@@ -4,6 +4,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
 import passport from 'passport';
+import session from 'express-session';
+import passportConfig from './config/passport';
 
 // Importar configuraciones y rutas
 import connectDB from './config/database';
@@ -14,6 +16,8 @@ import cartRoutes from './routes/cartRoutes';
 import wishlistRoutes from './routes/wishlistRoutes';
 import orderRoutes from './routes/orderRoutes';
 import chatRoutes from './routes/chatRoutes';
+import paymentRoutes from './routes/paymentRoutes';
+import webhookRoutes from './routes/webhookRoutes';
 
 // Configurar variables de entorno
 dotenv.config();
@@ -29,8 +33,26 @@ app.use(cors()); // Habilitar CORS
 app.use(express.json()); // Parsear JSON en las solicitudes
 app.use(morgan('dev')); // Registro de solicitudes HTTP
 
+// Configurar sesiones (necesario para Passport.js)
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'supersecretkey',
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+// Inicializar Passport.js
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Configurar Passport.js
+passportConfig(passport);
+
 // Rutas
 app.use('/api/auth', authRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api', webhookRoutes); // Endpoint del webhook
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);

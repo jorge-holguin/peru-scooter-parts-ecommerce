@@ -17,12 +17,18 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import ChatWidget from './components/ChatWidget';
 import PrivateRoute from './components/PrivateRoute'; // Asegúrate de importar correctamente PrivateRoute
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+import ThankYouPage from './pages/ThankYouPage';
+
+const stripePromise = loadStripe('pk_test_51Pz5mwHPZjnsfqM1Kb3T08Vb873Wp1QUrXQvjwyZdjFUsDqsl3JoEyTBPRrrc5V47mLNxotRRWz97BR6wgjzMdAx00smlQsB51');
 
 const App: React.FC = () => {
   return (
     <ThemeProvider>
       <AuthProvider>
         <CartProvider>
+        <Elements stripe={stripePromise}>
           <Router>
             <div className="flex flex-col min-h-screen">
               <Header />
@@ -34,6 +40,7 @@ const App: React.FC = () => {
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
                   <Route path="/auth-success" element={<AuthSuccess />} />
+                  <Route path="/thank-you" element={<ThankYouPage />} />
 
                   {/* Rutas protegidas */}
                   <Route element={<PrivateRoute />}>
@@ -41,6 +48,7 @@ const App: React.FC = () => {
                     <Route path="/wishlist" element={<WishlistPage />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
+                    
                   </Route>
                 </Routes>
               </main>
@@ -48,6 +56,7 @@ const App: React.FC = () => {
               <Footer />
             </div>
           </Router>
+          </Elements>
         </CartProvider>
       </AuthProvider>
     </ThemeProvider>
