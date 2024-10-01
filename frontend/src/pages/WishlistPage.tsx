@@ -4,13 +4,6 @@ import { WishlistContext } from '../context/WishlistContext';
 import { Link } from 'react-router-dom';
 import { Trash2 } from 'lucide-react';
 
-interface Product {
-  _id: string;
-  name: string;
-  price: number;
-  images: string; // Cambiado para coincidir con el contexto
-}
-
 const WishlistPage: React.FC = () => {
   // Utiliza el contexto para obtener la lista de deseos
   const { wishlistItems, removeFromWishlist } = useContext(WishlistContext);

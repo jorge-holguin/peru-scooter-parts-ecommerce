@@ -10,7 +10,6 @@ import RegisterPage from './pages/RegisterPage';
 import CartPage from './pages/CartPage';
 import WishlistPage from './pages/WishlistPage';
 import CheckoutPage from './pages/CheckoutPage';
-import ChatPage from './pages/ChatPage';
 import ProfilePage from './pages/ProfilePage';
 import AuthSuccess from './pages/AuthSuccess';
 import Header from './components/Header';

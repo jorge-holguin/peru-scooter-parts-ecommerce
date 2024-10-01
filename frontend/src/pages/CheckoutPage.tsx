@@ -31,7 +31,7 @@ const CARD_ELEMENT_OPTIONS: CardElementProps['options'] = {
 const CheckoutForm: React.FC = () => {
   const stripe = useStripe();
   const elements = useElements();
-  const { cartItems, totalPrice, clearCart } = useContext(CartContext);
+  const {totalPrice, clearCart } = useContext(CartContext);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();

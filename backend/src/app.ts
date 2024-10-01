@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import passport from 'passport';
 import session from 'express-session';
 import passportConfig from './config/passport';
+import path from 'path';
 
 // Importar configuraciones y rutas
 import connectDB from './config/database';
@@ -46,6 +47,8 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+
+
 // Configurar Passport.js
 passportConfig(passport);
 
@@ -72,6 +75,14 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     message: 'Error en el servidor',
     error: err.message || 'Error desconocido',
   });
+});
+
+// Servir archivos estáticos del frontend
+app.use(express.static(path.join(__dirname, '../../frontend/build')));
+
+// Manejar cualquier ruta no especificada y devolver el archivo index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../frontend/build', 'index.html'));
 });
 
 export default app;

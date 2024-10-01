@@ -9,7 +9,7 @@ interface CartItem {
     _id: string;
     name: string;
     price: number;
-    images: string[];
+    images: string;
   };
   quantity: number;
 }
