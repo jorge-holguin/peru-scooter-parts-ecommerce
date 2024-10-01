@@ -1,6 +1,6 @@
 // src/pages/WishlistPage.tsx
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useContext } from 'react';
+import { WishlistContext } from '../context/WishlistContext';
 import { Link } from 'react-router-dom';
 import { Trash2 } from 'lucide-react';
 
@@ -8,54 +8,32 @@ interface Product {
   _id: string;
   name: string;
   price: number;
-  images: string[];
+  images: string; // Cambiado para coincidir con el contexto
 }
 
 const WishlistPage: React.FC = () => {
-  const [wishlist, setWishlist] = useState<Product[]>([]);
-
-  useEffect(() => {
-    const fetchWishlist = async () => {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/wishlist', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setWishlist(response.data.wishlist);
-    };
-    fetchWishlist();
-  }, []);
-
-  const removeFromWishlist = async (productId: string) => {
-    const token = localStorage.getItem('token');
-    await axios.delete(`http://localhost:5000/api/wishlist/${productId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    setWishlist(wishlist.filter((item) => item._id !== productId));
-  };
+  // Utiliza el contexto para obtener la lista de deseos
+  const { wishlistItems, removeFromWishlist } = useContext(WishlistContext);
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-gray-800 dark:text-white">
         Mi Lista de Deseos
       </h1>
-      {wishlist.length === 0 ? (
+      {wishlistItems.length === 0 ? (
         <p className="text-gray-600 dark:text-gray-300">
           Tu lista de deseos está vacía.
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {wishlist.map((product) => (
+          {wishlistItems.map((product) => (
             <div
               key={product._id}
               className="bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition duration-300 relative"
             >
-              <Link to={`/product/${product._id}`}>
+              <Link to={`/products/${product._id}`}>
                 <img
-                  src={product.images[0]}
+                  src={product.images} // Utiliza la propiedad `image` directamente
                   alt={product.name}
                   className="w-full h-48 object-cover rounded-t-lg"
                 />

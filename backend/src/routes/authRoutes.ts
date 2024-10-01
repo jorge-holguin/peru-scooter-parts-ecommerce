@@ -26,7 +26,7 @@ router.get(
     const token = generateToken((req.user as any).id);
 
     // Redirige al frontend con el token como parámetro
-    res.redirect(`http://localhost:3000/auth-success?token=${token}`);
+    res.redirect(`http://localhost:5173/auth-success?token=${token}`);
   }
 );
 
@@ -45,7 +45,7 @@ router.get(
     const token = generateToken((req.user as any).id);
 
     // Redirige al frontend con el token como parámetro
-    res.redirect(`http://localhost:3000/auth-success?token=${token}`);
+    res.redirect(`http://localhost:5173/auth-success?token=${token}`);
   }
 );
 

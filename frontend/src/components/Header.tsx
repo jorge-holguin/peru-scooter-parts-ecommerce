@@ -5,16 +5,22 @@ import { ShoppingCart, Heart, Menu, User } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import { AuthContext } from '../context/AuthContext';
 import { CartContext } from '../context/CartContext';
+import { WishlistContext } from '../context/WishlistContext';
 
 const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, logout } = useContext(AuthContext);
   const { cartItems } = useContext(CartContext);
+  const { wishlistItems } = useContext(WishlistContext);
 
+  // Calcular la cantidad de productos en el carrito
   const cartItemCount = cartItems.reduce(
     (total, item) => total + item.quantity,
     0
   );
+
+  // Calcular la cantidad de productos en la lista de deseos
+  const wishlistItemCount = wishlistItems.length;
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow">
@@ -46,13 +52,20 @@ const Header: React.FC = () => {
           </Link>
         </nav>
         <div className="flex items-center space-x-4">
-          <Link to="/wishlist" className="text-gray-800 dark:text-white">
+          <Link to="/wishlist" className="text-gray-800 dark:text-white relative">
             <Heart size={24} />
+            {/* Mostrar el contador de la lista de deseos */}
+            {wishlistItemCount > 0 && (
+              <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full transform translate-x-1/2 -translate-y-1/2">
+                {wishlistItemCount}
+              </span>
+            )}
           </Link>
           <Link to="/cart" className="text-gray-800 dark:text-white relative">
             <ShoppingCart size={24} />
+            {/* Mostrar el contador del carrito */}
             {cartItemCount > 0 && (
-              <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full transform translate-x-1/2 -translate-y-1/2">
+              <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full transform translate-x-1/2 -translate-y-1/2">
                 {cartItemCount}
               </span>
             )}
@@ -61,10 +74,11 @@ const Header: React.FC = () => {
           {user ? (
             <div className="relative">
               <button
-                className="text-gray-800 dark:text-white"
+                className="flex items-center text-gray-800 dark:text-white focus:outline-none"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
                 <User size={24} />
+                <span className="ml-2">Bienvenido, {user.name}</span>
               </button>
               {isMobileMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-20">

@@ -20,6 +20,7 @@ import PrivateRoute from './components/PrivateRoute'; // Asegúrate de importar 
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import ThankYouPage from './pages/ThankYouPage';
+import { WishlistProvider } from './context/WishlistContext';
 
 const stripePromise = loadStripe('pk_test_51Pz5mwHPZjnsfqM1Kb3T08Vb873Wp1QUrXQvjwyZdjFUsDqsl3JoEyTBPRrrc5V47mLNxotRRWz97BR6wgjzMdAx00smlQsB51');
 
@@ -28,6 +29,7 @@ const App: React.FC = () => {
     <ThemeProvider>
       <AuthProvider>
         <CartProvider>
+        <WishlistProvider>
         <Elements stripe={stripePromise}>
           <Router>
             <div className="flex flex-col min-h-screen">
@@ -57,6 +59,7 @@ const App: React.FC = () => {
             </div>
           </Router>
           </Elements>
+          </WishlistProvider>
         </CartProvider>
       </AuthProvider>
     </ThemeProvider>

@@ -4,8 +4,8 @@ import bcrypt from 'bcryptjs';
 
 export interface IUser extends Document {
   name: string;
-  email: string;
-  password: string;
+  email?: string;
+  password?: string; // Cambiado para ser opcional
   avatar?: string;
   googleId?: string;
   githubId?: string;
@@ -26,14 +26,12 @@ const userSchema = new Schema<IUser>(
     },
     email: {
       type: String,
-      required: [true, 'El correo electrónico es obligatorio'],
       unique: true,
       lowercase: true,
       trim: true,
     },
     password: {
-      type: String,
-      required: [true, 'La contraseña es obligatoria'],
+      type: String, // Cambiado para que no sea obligatorio
       minlength: [6, 'La contraseña debe tener al menos 6 caracteres'],
     },
     avatar: { type: String },
@@ -42,25 +40,25 @@ const userSchema = new Schema<IUser>(
     role: {
       type: String,
       enum: ['cliente', 'administrador'],
-      default: 'administrador',
+      default: 'cliente', // Por defecto, se establece como cliente
     },
     cart: [
-        {
-          product: {
-            type: Schema.Types.ObjectId,
-            ref: 'Product',
-          },
-          quantity: {
-            type: Number,
-            required: true,
-            default: 1,
-          },
+      {
+        product: {
+          type: Schema.Types.ObjectId,
+          ref: 'Product',
         },
-      ],
+        quantity: {
+          type: Number,
+          required: true,
+          default: 1,
+        },
+      },
+    ],
     wishlist: {
-        type: [Schema.Types.ObjectId],
-        ref: 'Product',
-        default: [],
+      type: [Schema.Types.ObjectId],
+      ref: 'Product',
+      default: [],
     },
   },
   {
@@ -70,7 +68,7 @@ const userSchema = new Schema<IUser>(
 
 // Middleware para encriptar la contraseña antes de guardar el usuario
 userSchema.pre<IUser>('save', async function (next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password') || !this.password) return next(); // Si no hay contraseña, saltar el proceso
 
   try {
     const salt = await bcrypt.genSalt(10);
@@ -86,6 +84,7 @@ userSchema.pre<IUser>('save', async function (next) {
 userSchema.methods.comparePassword = async function (
   candidatePassword: string
 ): Promise<boolean> {
+  if (!this.password) return false; // Si no hay contraseña, no se puede comparar
   return bcrypt.compare(candidatePassword, this.password);
 };
 

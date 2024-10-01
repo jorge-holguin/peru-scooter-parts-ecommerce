@@ -1,11 +1,11 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 
-// Definir la estructura de un producto
+// Definir la estructura de un producto con `image` como un string individual
 interface Product {
   _id: string;
   name: string;
   price: number;
-  images: string[];
+  images: string; // Cambiado de string[] a string
 }
 
 // Definir la estructura de un ítem en el carrito
