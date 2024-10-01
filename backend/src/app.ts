@@ -63,6 +63,17 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/chat', chatRoutes);
 
+// Servir archivos estáticos del frontend
+const buildPath = path.resolve(__dirname, '../public'); // Asegúrate de que apunte a la carpeta `public`
+console.log(`Serving static files from: ${buildPath}`);
+app.use(express.static(buildPath));
+
+// Redirigir todas las rutas a `index.html` del frontend
+app.get('*', (req, res) => {
+  res.sendFile(path.join(buildPath, 'index.html'));
+});
+
+
 // Middleware para manejar errores 404
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Ruta no encontrada' });
@@ -77,12 +88,8 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-// Servir archivos estáticos del frontend
-app.use(express.static(path.join(__dirname, '../../frontend/build')));
 
-// Manejar cualquier ruta no especificada y devolver el archivo index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../frontend/build', 'index.html'));
-});
+
+
 
 export default app;

@@ -1,47 +1,37 @@
-# Etapa 1: Construcción del frontend
-FROM node:18-alpine AS build-frontend
-
+# Dockerfile
+# 1. Construcción del frontend
+FROM node:18-alpine as build-frontend
 WORKDIR /app/frontend
-
-# Copiar archivos de configuración del frontend (package.json y lock files)
 COPY ./frontend/package*.json ./
 RUN npm install
-
-# Copiar el resto de los archivos del frontend y construir
 COPY ./frontend ./
 RUN npm run build
 
-# Etapa 2: Construcción y configuración del backend
-FROM node:18-alpine AS build-backend
-
+# 2. Construcción del backend
+FROM node:18-alpine as build-backend
 WORKDIR /app/backend
-
-# Copiar archivos de configuración del backend (package.json y lock files)
 COPY ./backend/package*.json ./
 RUN npm install
-
-# Copiar el resto de los archivos del backend y compilar
 COPY ./backend ./
 RUN npm run build
 
-# Etapa 3: Imagen final para producción
+# 3. Crear la imagen final que combina el frontend y el backend
 FROM node:18-alpine
-
 WORKDIR /app
 
-# Copiar el backend compilado desde la etapa `build-backend`
+# Copiar el backend ya compilado
 COPY --from=build-backend /app/backend/dist ./dist
 
-# Crear el directorio público y copiar el frontend construido desde la etapa `build-frontend`
+# Crear el directorio `public` y copiar el build del frontend
 RUN mkdir -p /app/public
-COPY --from=build-frontend /app/frontend/dist /app/public
+COPY --from=build-frontend /app/frontend/build /app/public
 
 # Copiar `package.json` y `package-lock.json` del backend para instalar dependencias de producción
 COPY ./backend/package*.json ./
-RUN npm install --only=production
+RUN npm install --production
 
-# Exponer el puerto del backend (puerto predeterminado 5000)
+# Exponer el puerto 5000 para el servidor Express
 EXPOSE 5000
 
-# Comando para iniciar la aplicación en producción
+# Iniciar la aplicación con `node`
 CMD ["node", "dist/index.js"]

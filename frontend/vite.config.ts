@@ -1,8 +1,13 @@
+// vite.config.ts
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  
+  build: {
+    outDir: 'build', // Asegúrate de que la carpeta de salida sea `build`
+  },
+  server: {
+    port: 3000,
+  },
 })
