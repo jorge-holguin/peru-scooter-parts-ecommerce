@@ -60,13 +60,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           headers: authHeaders,
         }
       );
-      addToWishlist(product); // Actualizar el estado local de la lista de deseos si se usa el contexto
-      alert('Producto agregado a la lista de deseos');
+      addToWishlist(product); // Asegúrate de actualizar el estado global de wishlist
     } catch (error) {
       console.error('Error al agregar a la lista de deseos:', error);
       alert('Ocurrió un error al agregar a la lista de deseos');
     }
   };
+  
 
   const handleBuyNow = async () => {
     try {
