@@ -23,12 +23,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToWishlist } = useContext(WishlistContext);
   const navigate = useNavigate();
 
+  // Obtener el token desde el localStorage
+  const token = localStorage.getItem('token');
+
+  // Configurar las cabeceras con el token, si está disponible
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
+  // Función para agregar el producto al carrito con autenticación
   const handleAddToCart = async () => {
     try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/cart`, {
-        productId: product._id,
-        quantity: 1,
-      });
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/cart`,
+        {
+          productId: product._id,
+          quantity: 1,
+        },
+        {
+          headers: authHeaders,
+        }
+      );
       addToCart(product, 1);
       alert('Producto agregado al carrito');
     } catch (error) {
@@ -37,11 +50,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }
   };
 
+  // Función para agregar el producto a la lista de deseos con autenticación
   const handleAddToWishlist = async () => {
     try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/wishlist`, {
-        productId: product._id,
-      });
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/wishlist`,
+        {
+          productId: product._id,
+        },
+        {
+          headers: authHeaders,
+        }
+      );
       addToWishlist(product);
       alert('Producto agregado a la lista de deseos');
     } catch (error) {
@@ -50,6 +70,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }
   };
 
+  // Función para manejar la compra inmediata
   const handleBuyNow = async () => {
     try {
       await handleAddToCart();
