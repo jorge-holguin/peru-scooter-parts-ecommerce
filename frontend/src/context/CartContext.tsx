@@ -41,14 +41,32 @@ export const CartContext = createContext<CartContextProps>({
 // Definir el CartProvider
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api'; // URL base de la API
 
-  // Cargar el carrito desde localStorage al montar el componente
+  // Obtener el token del localStorage
+  const getToken = () => localStorage.getItem('token') || '';
+
+  // Cargar el carrito desde el backend al montar el componente
   useEffect(() => {
-    const storedCart = localStorage.getItem('cart');
-    if (storedCart) {
-      setCartItems(JSON.parse(storedCart));
-    }
-  }, []);
+    const fetchCartItems = async () => {
+      const token = getToken();
+      if (!token) return;
+
+      try {
+        const response = await axios.get(`${apiUrl}/cart`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setCartItems(response.data.cartItems || []);
+      } catch (error) {
+        console.error('Error al obtener el carrito del backend:', error);
+      }
+    };
+
+    fetchCartItems();
+  }, [apiUrl]);
 
   // Guardar el carrito en localStorage cada vez que se actualice el carrito
   useEffect(() => {
@@ -57,6 +75,12 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   // Función para añadir un producto al carrito e integrarlo con el backend
   const addToCart = async (product: Product, quantity: number) => {
+    const token = getToken();
+    if (!token) {
+      alert('Debes iniciar sesión para agregar productos al carrito.');
+      return;
+    }
+
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.product._id === product._id);
       if (existingItem) {
@@ -71,42 +95,64 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     });
 
     try {
-      // Llamada al backend para agregar el ítem al carrito en la base de datos
-      await axios.post(`${process.env.REACT_APP_API_URL}/cart`, {
-        productId: product._id,
-        quantity,
-      });
+      await axios.post(
+        `${apiUrl}/cart`,
+        { productId: product._id, quantity },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
     } catch (error) {
       console.error('Error al agregar al carrito en el backend:', error);
+      alert('No se pudo agregar el producto al carrito. Inténtalo de nuevo.');
     }
   };
 
   // Función para remover un producto del carrito e integrarlo con el backend
   const removeFromCart = async (productId: string) => {
+    const token = getToken();
+    if (!token) return;
+
     setCartItems((prevItems) => prevItems.filter((item) => item.product._id !== productId));
 
     try {
-      // Llamada al backend para eliminar el ítem del carrito en la base de datos
-      await axios.delete(`${process.env.REACT_APP_API_URL}/cart/${productId}`);
+      await axios.delete(`${apiUrl}/cart/${productId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
     } catch (error) {
       console.error('Error al remover del carrito en el backend:', error);
+      alert('No se pudo remover el producto del carrito.');
     }
   };
 
   // Función para limpiar el carrito e integrarlo con el backend
   const clearCart = async () => {
+    const token = getToken();
+    if (!token) return;
+
     setCartItems([]);
 
     try {
-      // Llamada al backend para limpiar el carrito en la base de datos
-      await axios.delete(`${process.env.REACT_APP_API_URL}/cart`);
+      await axios.delete(`${apiUrl}/cart`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
     } catch (error) {
       console.error('Error al limpiar el carrito en el backend:', error);
+      alert('No se pudo limpiar el carrito. Inténtalo de nuevo.');
     }
   };
 
   // Calcular el precio total del carrito
-  const totalPrice = cartItems.reduce((total, item) => total + item.product.price * item.quantity, 0);
+  const totalPrice = cartItems.reduce(
+    (total, item) => total + item.product.price * item.quantity,
+    0
+  );
 
   return (
     <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart, totalPrice }}>
