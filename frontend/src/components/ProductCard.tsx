@@ -23,13 +23,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToWishlist } = useContext(WishlistContext);
   const navigate = useNavigate();
 
-  // Obtener el token desde el localStorage
+  // Obtener el token del localStorage
   const token = localStorage.getItem('token');
 
-  // Configurar las cabeceras con el token, si está disponible
+  // Definir las cabeceras con el token si está disponible
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
-  // Función para agregar el producto al carrito con autenticación
   const handleAddToCart = async () => {
     try {
       await axios.post(
@@ -42,7 +41,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           headers: authHeaders,
         }
       );
-      addToCart(product, 1);
+      addToCart(product, 1); // Actualizar el estado local del carrito si se usa el contexto
       alert('Producto agregado al carrito');
     } catch (error) {
       console.error('Error al agregar al carrito:', error);
@@ -50,7 +49,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }
   };
 
-  // Función para agregar el producto a la lista de deseos con autenticación
   const handleAddToWishlist = async () => {
     try {
       await axios.post(
@@ -62,7 +60,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           headers: authHeaders,
         }
       );
-      addToWishlist(product);
+      addToWishlist(product); // Actualizar el estado local de la lista de deseos si se usa el contexto
       alert('Producto agregado a la lista de deseos');
     } catch (error) {
       console.error('Error al agregar a la lista de deseos:', error);
@@ -70,7 +68,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }
   };
 
-  // Función para manejar la compra inmediata
   const handleBuyNow = async () => {
     try {
       await handleAddToCart();
