@@ -10,4 +10,8 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  define: {
+    'process.env.REACT_APP_API_URL': JSON.stringify(process.env.REACT_APP_API_URL || 'https://peru-scooter-parts-ecommerce.onrender.com/api'),
+    'process.env.REACT_APP_SOCKET_URL': JSON.stringify(process.env.REACT_APP_SOCKET_URL || 'https://peru-scooter-parts-ecommerce.onrender.com'),
+  }
 })
