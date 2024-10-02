@@ -22,9 +22,9 @@ WORKDIR /app
 # Copiar el backend ya compilado
 COPY --from=build-backend /app/backend/dist ./dist
 
-# Crear el directorio `public` y copiar el build del frontend
-RUN mkdir -p /app/public
-COPY --from=build-frontend /app/frontend/build /app/public
+# Crear el directorio `dist` y copiar el build del frontend
+RUN mkdir -p /app/dist
+COPY --from=build-frontend /app/frontend/dist /app/dist
 
 # Copiar `package.json` y `package-lock.json` del backend para instalar dependencias de producción
 COPY ./backend/package*.json ./

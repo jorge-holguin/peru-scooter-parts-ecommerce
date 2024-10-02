@@ -64,7 +64,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/chat', chatRoutes);
 
 // Servir archivos estáticos del frontend
-const buildPath = path.resolve(__dirname, '../public'); // Asegúrate de que apunte a la carpeta `public`
+const buildPath = path.resolve(__dirname, '../dist'); // Apuntar a la carpeta `dist`
 console.log(`Serving static files from: ${buildPath}`);
 app.use(express.static(buildPath));
 
@@ -72,6 +72,7 @@ app.use(express.static(buildPath));
 app.get('*', (req, res) => {
   res.sendFile(path.join(buildPath, 'index.html'));
 });
+
 
 
 // Middleware para manejar errores 404
