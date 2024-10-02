@@ -94,6 +94,8 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
       if (response.status === 200) {
         console.log('Producto agregado a la lista de deseos en el backend:', product.name);
         setWishlistItems((prevItems) => [...prevItems, product]);
+      } else {
+        console.error(`Error al agregar a la lista de deseos: ${response.data.message}`);
       }
     } catch (error) {
       console.error('Error al agregar a la lista de deseos en el backend:', error);
@@ -123,6 +125,8 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
       if (response.status === 200) {
         console.log('Producto removido de la lista de deseos en el backend:', productId);
         setWishlistItems((prevItems) => prevItems.filter((item) => item._id !== productId));
+      } else {
+        console.error(`Error al remover de la lista de deseos: ${response.data.message}`);
       }
     } catch (error) {
       console.error('Error al remover de la lista de deseos en el backend:', error);
