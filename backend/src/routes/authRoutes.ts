@@ -9,6 +9,8 @@ import { protect } from '../middleware/authMiddleware';
 
 const router = Router();
 
+const FRONTEND_URL = process.env.REDIRECT_URI_FRONTEND || 'http://localhost:5173/auth-success';
+
 router.get('/me', protect, getCurrentUser);
 
 // Ruta para iniciar sesión con Google
@@ -26,7 +28,7 @@ router.get(
     const token = generateToken((req.user as any).id);
 
     // Redirige al frontend con el token como parámetro
-    res.redirect(`http://localhost:5173/auth-success?token=${token}`);
+    res.redirect(`${FRONTEND_URL}?token=${token}`);
   }
 );
 
@@ -45,27 +47,25 @@ router.get(
     const token = generateToken((req.user as any).id);
 
     // Redirige al frontend con el token como parámetro
-    res.redirect(`http://localhost:5173/auth-success?token=${token}`);
+    res.redirect(`${FRONTEND_URL}?token=${token}`);
   }
 );
 
 // Ruta para registrar un nuevo usuario
 router.post(
-    '/register',
-    [
-      body('name').notEmpty().withMessage('El nombre es obligatorio'),
-      body('email').isEmail().withMessage('Debe ser un correo electrónico válido'),
-      body('password')
-        .isLength({ min: 6 })
-        .withMessage('La contraseña debe tener al menos 6 caracteres'),
-    ],
-    validateRequest,
-    registerUser
-  );
+  '/register',
+  [
+    body('name').notEmpty().withMessage('El nombre es obligatorio'),
+    body('email').isEmail().withMessage('Debe ser un correo electrónico válido'),
+    body('password')
+      .isLength({ min: 6 })
+      .withMessage('La contraseña debe tener al menos 6 caracteres'),
+  ],
+  validateRequest,
+  registerUser
+);
 
 // Ruta para iniciar sesión
 router.post('/login', loginUser);
-
-// Aquí puedes agregar rutas para OAuth con GitHub y Google en el futuro
 
 export default router;

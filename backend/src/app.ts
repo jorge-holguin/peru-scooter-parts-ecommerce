@@ -47,8 +47,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-
-
 // Configurar Passport.js
 passportConfig(passport);
 
@@ -64,7 +62,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/chat', chatRoutes);
 
 // Servir archivos estáticos del frontend
-const buildPath = path.resolve(__dirname, '../public'); // Asegúrate de que apunte a la carpeta `public`
+const buildPath = path.resolve(__dirname, '../../frontend/build'); // Asegúrate de que apunte a la carpeta `build`
 console.log(`Serving static files from: ${buildPath}`);
 app.use(express.static(buildPath));
 
@@ -72,7 +70,6 @@ app.use(express.static(buildPath));
 app.get('*', (req, res) => {
   res.sendFile(path.join(buildPath, 'index.html'));
 });
-
 
 // Middleware para manejar errores 404
 app.use((req, res, next) => {
@@ -87,9 +84,5 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     error: err.message || 'Error desconocido',
   });
 });
-
-
-
-
 
 export default app;
