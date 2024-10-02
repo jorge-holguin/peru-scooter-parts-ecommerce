@@ -64,16 +64,14 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/chat', chatRoutes);
 
 // Servir archivos estáticos del frontend
-const buildPath = path.resolve(__dirname, '../dist'); // Apuntar a la carpeta `dist`
+const buildPath = path.resolve(__dirname, '../build'); // Cambiado de `public` a `build`
 console.log(`Serving static files from: ${buildPath}`);
 app.use(express.static(buildPath));
 
 // Redirigir todas las rutas a `index.html` del frontend
 app.get('*', (req, res) => {
-  res.sendFile(path.join(buildPath, 'index.html'));
+  res.sendFile(path.join(buildPath, 'index.html')); // Asegúrate de que la ruta apunta a `build/index.html`
 });
-
-
 
 // Middleware para manejar errores 404
 app.use((req, res, next) => {
