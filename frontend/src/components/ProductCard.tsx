@@ -31,16 +31,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   const handleAddToCart = async () => {
     try {
-      await axios.post(
-        `${process.env.REACT_APP_API_URL}/cart`,
-        {
-          productId: product._id,
-          quantity: 1,
-        },
-        {
-          headers: authHeaders,
-        }
-      );
       addToCart(product, 1); // Actualizar el estado local del carrito si se usa el contexto
       alert('Producto agregado al carrito');
     } catch (error) {
