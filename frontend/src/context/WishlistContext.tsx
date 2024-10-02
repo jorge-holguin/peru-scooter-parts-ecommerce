@@ -1,11 +1,12 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import axios from 'axios';
 
 // Definir la estructura de un producto
 interface Product {
   _id: string;
   name: string;
   price: number;
-  images: string; // Cambiado de string[] a string
+  images: string;
 }
 
 // Definir las props del contexto de lista de deseos
@@ -17,7 +18,7 @@ interface WishlistContextProps {
 
 // Definir las props del `WishlistProvider`
 interface WishlistProviderProps {
-  children: ReactNode; // Definir el prop 'children' como ReactNode
+  children: ReactNode;
 }
 
 // Crear el contexto con valores iniciales predeterminados
@@ -32,40 +33,77 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
 }) => {
   const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
 
-  // Cargar la lista de deseos desde localStorage al montar el componente
+  // Cargar la lista de deseos desde el backend al montar el componente
   useEffect(() => {
-    const storedWishlist = localStorage.getItem('wishlist');
-    if (storedWishlist) {
-      setWishlistItems(JSON.parse(storedWishlist));
-    }
+    const fetchWishlist = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return; // Si no hay token, no cargar la lista de deseos
+
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+        const response = await axios.get(`${apiUrl}/wishlist`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setWishlistItems(response.data.wishlistItems || []);
+      } catch (error) {
+        console.error('Error al obtener la lista de deseos del backend:', error);
+      }
+    };
+
+    fetchWishlist();
   }, []);
 
-  // Guardar la lista de deseos en localStorage cada vez que se actualice
-  useEffect(() => {
-    localStorage.setItem('wishlist', JSON.stringify(wishlistItems));
-  }, [wishlistItems]);
+  // Función para añadir un producto a la lista de deseos en el backend y actualizar el estado local
+  const addToWishlist = async (product: Product) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
 
-  // Función para añadir un producto a la lista de deseos
-  const addToWishlist = (product: Product) => {
-    setWishlistItems((prevItems) => {
-      if (!prevItems.find((item) => item._id === product._id)) {
-        return [...prevItems, product];
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+      const response = await axios.post(
+        `${apiUrl}/wishlist`,
+        { product },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        setWishlistItems((prevItems) => [...prevItems, product]);
       }
-      return prevItems;
-    });
+    } catch (error) {
+      console.error('Error al agregar a la lista de deseos:', error);
+    }
   };
 
-  // Función para remover un producto de la lista de deseos
-  const removeFromWishlist = (productId: string) => {
-    setWishlistItems((prevItems) =>
-      prevItems.filter((item) => item._id !== productId)
-    );
+  // Función para remover un producto de la lista de deseos en el backend y actualizar el estado local
+  const removeFromWishlist = async (productId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+      const response = await axios.delete(`${apiUrl}/wishlist/${productId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        setWishlistItems((prevItems) => prevItems.filter((item) => item._id !== productId));
+      }
+    } catch (error) {
+      console.error('Error al remover de la lista de deseos:', error);
+    }
   };
 
   return (
-    <WishlistContext.Provider
-      value={{ wishlistItems, addToWishlist, removeFromWishlist }}
-    >
+    <WishlistContext.Provider value={{ wishlistItems, addToWishlist, removeFromWishlist }}>
       {children}
     </WishlistContext.Provider>
   );
