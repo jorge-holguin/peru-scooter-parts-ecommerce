@@ -1,4 +1,3 @@
-// backend/src/app.ts
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -47,8 +46,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-
-
 // Configurar Passport.js
 passportConfig(passport);
 
@@ -63,14 +60,14 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/chat', chatRoutes);
 
-// Servir archivos estáticos del frontend
-const buildPath = path.resolve(__dirname, '../../frontend/build');
+// Servir archivos estáticos del frontend desde `/app/build`
+const buildPath = path.resolve(__dirname, '../../build');
 console.log(`Serving static files from: ${buildPath}`);
 app.use(express.static(buildPath));
 
 // Redirigir todas las rutas a `index.html` del frontend
 app.get('*', (req, res) => {
-  res.sendFile(path.join(buildPath, 'index.html')); // Asegúrate de que la ruta apunta a `build/index.html`
+  res.sendFile(path.join(buildPath, 'index.html'));
 });
 
 // Middleware para manejar errores 404
@@ -86,9 +83,5 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     error: err.message || 'Error desconocido',
   });
 });
-
-
-
-
 
 export default app;
