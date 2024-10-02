@@ -61,7 +61,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/chat', chatRoutes);
 
 // Servir archivos estáticos del frontend desde `/app/build`
-const buildPath = path.resolve(__dirname, '../../build');
+const buildPath = path.resolve(__dirname, '../build');
 console.log(`Serving static files from: ${buildPath}`);
 app.use(express.static(buildPath));
 
