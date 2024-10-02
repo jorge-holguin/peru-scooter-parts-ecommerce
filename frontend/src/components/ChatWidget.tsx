@@ -15,7 +15,8 @@ const ChatWidget: React.FC = () => {
   const [socket, setSocket] = useState<any>(null);
 
   useEffect(() => {
-    const newSocket = io('http://localhost:5000' || process.env.REACT_APP_API_URL);
+    const socketUrl = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000';
+    const newSocket = io(socketUrl);
     setSocket(newSocket);
 
     newSocket.on('receiveMessage', (data: Message) => {
