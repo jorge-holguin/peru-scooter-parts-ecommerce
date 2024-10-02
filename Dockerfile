@@ -24,7 +24,10 @@ COPY --from=build-backend /app/backend/dist ./dist
 
 # Crear el directorio `public` y copiar el build del frontend
 RUN mkdir -p /app/public
-COPY --from=build-frontend /app/frontend/build /app/public
+COPY --from=build-frontend /app/frontend/build /app/build
+
+# Después de copiar el build del frontend, agrega esto:
+RUN ls -la /app/build
 
 # Copiar `package.json` y `package-lock.json` del backend para instalar dependencias de producción
 COPY ./backend/package*.json ./
