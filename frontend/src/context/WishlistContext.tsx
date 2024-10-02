@@ -28,26 +28,39 @@ export const WishlistContext = createContext<WishlistContextProps>({
   removeFromWishlist: () => {},
 });
 
-export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) => {
+export const WishlistProvider: React.FC<WishlistProviderProps> = ({
+  children,
+}) => {
   const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
-  const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api'; // URL base de la API
+
+  // Definir la URL base de la API
+  const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
   // Obtener el token del localStorage
-  const getToken = () => localStorage.getItem('token') || '';
+  const getToken = () => {
+    const token = localStorage.getItem('token') || '';
+    console.log(`Token obtenido: ${token ? token : 'No se encontró token'}`);
+    return token;
+  };
 
   // Cargar la lista de deseos desde el backend al montar el componente
   useEffect(() => {
     const fetchWishlist = async () => {
       try {
         const token = getToken();
-        if (!token) return; // Si no hay token, no cargar la lista de deseos
+        if (!token) {
+          console.warn('No se pudo cargar la lista de deseos. Token no encontrado.');
+          return; // Si no hay token, no cargar la lista de deseos
+        }
 
+        console.log('Haciendo petición GET para cargar la lista de deseos');
         const response = await axios.get(`${apiUrl}/wishlist`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
+        console.log('Respuesta del servidor al cargar lista de deseos:', response.data);
         setWishlistItems(response.data.wishlistItems || []);
       } catch (error) {
         console.error('Error al obtener la lista de deseos del backend:', error);
@@ -62,10 +75,11 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     try {
       const token = getToken();
       if (!token) {
-        alert('Debes iniciar sesión para añadir productos a la lista de deseos.');
+        console.warn('Debes iniciar sesión para agregar productos a la lista de deseos.');
         return;
       }
 
+      console.log(`Haciendo petición POST para añadir producto a la lista de deseos: ${product.name}`);
       const response = await axios.post(
         `${apiUrl}/wishlist`,
         { productId: product._id },
@@ -76,13 +90,12 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
         }
       );
 
+      console.log('Respuesta del servidor al agregar producto a la lista de deseos:', response.data);
       if (response.status === 200) {
         setWishlistItems((prevItems) => [...prevItems, product]);
-        alert('Producto añadido a la lista de deseos.');
       }
     } catch (error) {
       console.error('Error al agregar a la lista de deseos:', error);
-      alert('No se pudo añadir a la lista de deseos.');
     }
   };
 
@@ -91,23 +104,23 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     try {
       const token = getToken();
       if (!token) {
-        alert('Debes iniciar sesión para eliminar productos de la lista de deseos.');
+        console.warn('Debes iniciar sesión para remover productos de la lista de deseos.');
         return;
       }
 
+      console.log(`Haciendo petición DELETE para remover producto de la lista de deseos: ${productId}`);
       const response = await axios.delete(`${apiUrl}/wishlist/${productId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
+      console.log('Respuesta del servidor al remover producto de la lista de deseos:', response.data);
       if (response.status === 200) {
         setWishlistItems((prevItems) => prevItems.filter((item) => item._id !== productId));
-        alert('Producto eliminado de la lista de deseos.');
       }
     } catch (error) {
       console.error('Error al remover de la lista de deseos:', error);
-      alert('No se pudo eliminar de la lista de deseos.');
     }
   };
 
