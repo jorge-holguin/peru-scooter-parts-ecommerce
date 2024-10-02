@@ -2,9 +2,10 @@ import { Request, Response } from 'express';
 import Product from '../models/Product';
 
 interface AuthRequest extends Request {
-    user?: any;
-  }
+  user?: any;
+}
 
+// Crear una reseña de un producto
 export const createProductReview = async (req: AuthRequest, res: Response) => {
   try {
     const { rating, comment } = req.body;
@@ -45,76 +46,30 @@ export const createProductReview = async (req: AuthRequest, res: Response) => {
   }
 };
 
+// Obtener todos los productos sin filtros, pero con paginación
 export const getProducts = async (req: Request, res: Response) => {
-    try {
-      const pageSize = 10; // Tamaño de página para la paginación
-      const page = Number(req.query.pageNumber) || 1;
-  
-      const keyword = req.query.keyword
-        ? {
-            // Búsqueda por nombre o descripción
-            $or: [
-              {
-                name: {
-                  $regex: req.query.keyword,
-                  $options: 'i',
-                },
-              },
-              {
-                description: {
-                  $regex: req.query.keyword,
-                  $options: 'i',
-                },
-              },
-            ],
-          }
-        : {};
-  
-      // Filtrado por categoría
-      const category = req.query.category
-        ? {
-            category: req.query.category,
-          }
-        : {};
-  
-      // Filtrado por marca
-      const brand = req.query.brand
-        ? {
-            brand: req.query.brand,
-          }
-        : {};
-  
-      // Filtrado por rango de precio
-      let price = {};
-      if (req.query.minPrice || req.query.maxPrice) {
-        price = {
-          price: {
-            $gte: Number(req.query.minPrice) || 0,
-            $lte: Number(req.query.maxPrice) || Number.MAX_SAFE_INTEGER,
-          },
-        };
-      }
-  
-      // Combinar los filtros
-      const filter = { ...keyword, ...category, ...brand, ...price };
-  
-      const count = await Product.countDocuments(filter);
-  
-      const products = await Product.find(filter)
-        .limit(pageSize)
-        .skip(pageSize * (page - 1));
-  
-      res.json({
-        products,
-        page,
-        pages: Math.ceil(count / pageSize),
-        total: count,
-      });
-    } catch (error: any) {
-      res.status(500).json({ message: 'Error al obtener productos', error: error.message });
-    }
-  };
+  try {
+    const pageSize = 10; // Tamaño de página para la paginación
+    const page = Number(req.query.pageNumber) || 1;
 
+    // Obtener todos los productos con paginación básica
+    const count = await Product.countDocuments();
+    const products = await Product.find({})
+      .limit(pageSize)
+      .skip(pageSize * (page - 1));
+
+    res.json({
+      products,
+      page,
+      pages: Math.ceil(count / pageSize),
+      total: count,
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error al obtener productos', error: error.message });
+  }
+};
+
+// Obtener un producto por su ID
 export const getProductById = async (req: Request, res: Response) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -128,6 +83,7 @@ export const getProductById = async (req: Request, res: Response) => {
   }
 };
 
+// Crear un nuevo producto
 export const createProduct = async (req: Request, res: Response) => {
   try {
     const { name, description, price, images, category, brand, stock } = req.body;
@@ -149,66 +105,65 @@ export const createProduct = async (req: Request, res: Response) => {
   }
 };
 
-
+// Actualizar un producto existente
 export const updateProduct = async (req: AuthRequest, res: Response) => {
-    try {
-      const productId = req.params.id;
-  
-      const {
-        name,
-        description,
-        price,
-        images,
-        category,
-        brand,
-        stock,
-      } = req.body;
-  
-      const product = await Product.findById(productId);
-  
-      if (!product) {
-        return res.status(404).json({ message: 'Producto no encontrado' });
-      }
-  
-      product.name = name || product.name;
-      product.description = description || product.description;
-      product.price = price !== undefined ? price : product.price;
-      product.images = images || product.images;
-      product.category = category || product.category;
-      product.brand = brand || product.brand;
-      product.stock = stock !== undefined ? stock : product.stock;
-  
-      const updatedProduct = await product.save();
-  
-      res.status(200).json({
-        message: 'Producto actualizado exitosamente',
-        product: updatedProduct,
-      });
-    } catch (error) {
-      res.status(500).json({
-        message: 'Error al actualizar el producto',
-        error: error instanceof Error ? error.message : 'Error desconocido',
-      });
-    }
-  };
+  try {
+    const productId = req.params.id;
 
-  export const deleteProduct = async (req: AuthRequest, res: Response) => {
-    try {
-      const productId = req.params.id;
-  
-      const product = await Product.findByIdAndDelete(productId);
-  
-      if (!product) {
-        return res.status(404).json({ message: 'Producto no encontrado' });
-      }
-  
-      res.status(200).json({ message: 'Producto eliminado exitosamente' });
-    } catch (error) {
-      res.status(500).json({
-        message: 'Error al eliminar el producto',
-        error: error instanceof Error ? error.message : 'Error desconocido',
-      });
+    const {
+      name,
+      description,
+      price,
+      images,
+      category,
+      brand,
+      stock,
+    } = req.body;
+
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: 'Producto no encontrado' });
     }
-  };
-  
-// Implementa las funciones para actualizar y eliminar productos
+
+    product.name = name || product.name;
+    product.description = description || product.description;
+    product.price = price !== undefined ? price : product.price;
+    product.images = images || product.images;
+    product.category = category || product.category;
+    product.brand = brand || product.brand;
+    product.stock = stock !== undefined ? stock : product.stock;
+
+    const updatedProduct = await product.save();
+
+    res.status(200).json({
+      message: 'Producto actualizado exitosamente',
+      product: updatedProduct,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error al actualizar el producto',
+      error: error instanceof Error ? error.message : 'Error desconocido',
+    });
+  }
+};
+
+// Eliminar un producto
+export const deleteProduct = async (req: AuthRequest, res: Response) => {
+  try {
+    const productId = req.params.id;
+
+    const product = await Product.findByIdAndDelete(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: 'Producto no encontrado' });
+    }
+
+    res.status(200).json({ message: 'Producto eliminado exitosamente' });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error al eliminar el producto',
+      error: error instanceof Error ? error.message : 'Error desconocido',
+    });
+  }
+};
