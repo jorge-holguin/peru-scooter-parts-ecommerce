@@ -33,17 +33,19 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
 }) => {
   const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
 
+  // Obtener el token del localStorage
+  const getToken = () => localStorage.getItem('token');
+
   // Cargar la lista de deseos desde el backend al montar el componente
   useEffect(() => {
     const fetchWishlist = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = getToken();
         if (!token) {
           console.error('No se encontró el token en localStorage');
           return;
         }
 
-        console.log('Token obtenido:', token);
         const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
         console.log('Haciendo petición GET para cargar la lista de deseos con el token:', token);
 
@@ -54,7 +56,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
         });
 
         console.log('Respuesta del servidor al cargar lista de deseos:', response.data);
-        setWishlistItems(response.data.wishlistItems || []);
+        setWishlistItems(response.data.wishlist || []); // Actualizar estado con la lista de deseos
       } catch (error) {
         console.error('Error al obtener la lista de deseos del backend:', error);
       }
@@ -66,7 +68,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
   // Función para añadir un producto a la lista de deseos en el backend y actualizar el estado local
   const addToWishlist = async (product: Product) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = getToken();
       if (!token) {
         console.error('No se encontró el token en localStorage');
         return;
@@ -75,9 +77,13 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
       console.log('Token utilizado para agregar a lista de deseos:', token);
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
+      // Enviar `productId` como propiedad en el cuerpo de la solicitud
+      const requestBody = { productId: product._id };
+      console.log('Cuerpo de la solicitud para agregar a lista de deseos:', requestBody);
+
       const response = await axios.post(
         `${apiUrl}/wishlist`,
-        { productId: product._id },
+        requestBody, // Enviar correctamente el ID del producto
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -97,7 +103,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
   // Función para remover un producto de la lista de deseos en el backend y actualizar el estado local
   const removeFromWishlist = async (productId: string) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = getToken();
       if (!token) {
         console.error('No se encontró el token en localStorage');
         return;
@@ -105,6 +111,8 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
 
       console.log('Token utilizado para remover de lista de deseos:', token);
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
+      console.log('Cuerpo de la solicitud para eliminar de lista de deseos:', { productId });
 
       const response = await axios.delete(`${apiUrl}/wishlist/${productId}`, {
         headers: {

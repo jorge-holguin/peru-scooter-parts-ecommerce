@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FiShoppingCart, FiHeart } from 'react-icons/fi';
 import { CartContext } from '../context/CartContext';
 import { WishlistContext } from '../context/WishlistContext';
-import axios from 'axios';
 
 interface Product {
   _id: string;
@@ -23,12 +22,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToWishlist } = useContext(WishlistContext);
   const navigate = useNavigate();
 
-  // Obtener el token del localStorage
-  const token = localStorage.getItem('token');
-
-  // Definir las cabeceras con el token si está disponible
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
-
   const handleAddToCart = async () => {
     try {
       addToCart(product, 1); // Actualizar el estado local del carrito si se usa el contexto
@@ -41,15 +34,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   const handleAddToWishlist = async () => {
     try {
-      await axios.post(
-        `${process.env.REACT_APP_API_URL}/wishlist`,
-        {
-          productId: product._id,
-        },
-        {
-          headers: authHeaders,
-        }
-      );
+      
       addToWishlist(product); // Asegúrate de actualizar el estado global de wishlist
     } catch (error) {
       console.error('Error al agregar a la lista de deseos:', error);
