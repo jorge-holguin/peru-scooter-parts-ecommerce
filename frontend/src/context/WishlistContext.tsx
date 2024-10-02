@@ -73,28 +73,28 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
   // Función para añadir un producto a la lista de deseos en el backend y actualizar el estado local
   const addToWishlist = async (product: Product) => {
     try {
-      const token = getToken();
+      const token = localStorage.getItem('token');
       if (!token) {
         console.warn('Debes iniciar sesión para agregar productos a la lista de deseos.');
         return;
       }
-
+  
       console.log(`Haciendo petición POST para añadir producto a la lista de deseos: ${product.name}`);
       console.log('Token que se enviará en la cabecera:', token);
-
+  
       // Añadir un log para ver las cabeceras enviadas
       const headers = {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       };
       console.log('Cabeceras utilizadas en la solicitud:', headers);
-
+  
       const response = await axios.post(
         `${apiUrl}/wishlist`,
         { productId: product._id },
         { headers }
       );
-
+  
       console.log('Respuesta del servidor al agregar producto a la lista de deseos:', response.data);
       if (response.status === 200) {
         setWishlistItems((prevItems) => [...prevItems, product]);
@@ -103,7 +103,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
       console.error('Error al agregar a la lista de deseos:', error);
     }
   };
-
+  
   // Función para remover un producto de la lista de deseos en el backend y actualizar el estado local
   const removeFromWishlist = async (productId: string) => {
     try {
