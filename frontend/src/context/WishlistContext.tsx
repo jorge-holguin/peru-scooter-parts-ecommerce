@@ -36,7 +36,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
   // Definir la URL base de la API
   const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-  // Obtener el token del localStorage
+  // Obtener el token del localStorage y verificar su existencia
   const getToken = () => {
     const token = localStorage.getItem('token') || '';
     console.log(`Token obtenido: ${token ? token : 'No se encontró token'}`);
@@ -53,10 +53,10 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
           return; // Si no hay token, no cargar la lista de deseos
         }
 
-        console.log('Haciendo petición GET para cargar la lista de deseos');
+        console.log('Haciendo petición GET para cargar la lista de deseos con el token:', token);
         const response = await axios.get(`${apiUrl}/wishlist`, {
           headers: {
-            Authorization: `Bearer ${token}`,
+            'Authorization': `Bearer ${token}`,
           },
         });
 
@@ -80,14 +80,19 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
       }
 
       console.log(`Haciendo petición POST para añadir producto a la lista de deseos: ${product.name}`);
+      console.log('Token que se enviará en la cabecera:', token);
+
+      // Añadir un log para ver las cabeceras enviadas
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      };
+      console.log('Cabeceras utilizadas en la solicitud:', headers);
+
       const response = await axios.post(
         `${apiUrl}/wishlist`,
         { productId: product._id },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers }
       );
 
       console.log('Respuesta del servidor al agregar producto a la lista de deseos:', response.data);
@@ -109,10 +114,15 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
       }
 
       console.log(`Haciendo petición DELETE para remover producto de la lista de deseos: ${productId}`);
+      console.log('Token que se enviará en la cabecera:', token);
+
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+      };
+      console.log('Cabeceras utilizadas en la solicitud:', headers);
+
       const response = await axios.delete(`${apiUrl}/wishlist/${productId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
       });
 
       console.log('Respuesta del servidor al remover producto de la lista de deseos:', response.data);
