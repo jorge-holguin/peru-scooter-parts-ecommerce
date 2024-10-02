@@ -1,4 +1,3 @@
-// src/components/CheckoutForm.tsx
 import React, { useState, useContext } from 'react';
 import {
   CardElement,
@@ -31,10 +30,13 @@ const CARD_ELEMENT_OPTIONS: CardElementProps['options'] = {
 const CheckoutForm: React.FC = () => {
   const stripe = useStripe();
   const elements = useElements();
-  const {totalPrice, clearCart } = useContext(CartContext);
+  const { totalPrice, clearCart } = useContext(CartContext);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
+
+  // Usar la variable de entorno para la URL de la API
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -51,13 +53,10 @@ const CheckoutForm: React.FC = () => {
       const amount = Math.round(totalPrice * 100); // Asegúrate de que sea un número entero
 
       // Llama a tu backend para crear un PaymentIntent
-      const response = await axios.post(
-        'http://localhost:5000/api/payments/create-payment-intent',
-        {
-          amount: amount,
-          currency: 'usd', // Cambia a 'pen' si usas soles peruanos
-        }
-      );
+      const response = await axios.post(`${API_URL}/payments/create-payment-intent`, {
+        amount: amount,
+        currency: 'usd', // Cambia a 'pen' si usas soles peruanos
+      });
 
       const { clientSecret } = response.data;
 

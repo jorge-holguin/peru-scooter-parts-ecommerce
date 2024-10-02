@@ -1,13 +1,8 @@
-// src/components/CheckoutForm.tsx
 import React, { useState } from 'react';
-import {
-  CardElement,
-  useStripe,
-  useElements,
-  CardElementProps,
-} from '@stripe/react-stripe-js';
+import { CardElement, useStripe, useElements, CardElementProps } from '@stripe/react-stripe-js';
 import axios from 'axios';
 
+// Definir opciones de estilo para el elemento de la tarjeta
 const CARD_ELEMENT_OPTIONS: CardElementProps['options'] = {
   style: {
     base: {
@@ -32,6 +27,9 @@ const CheckoutForm: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Usar la variable de entorno para la URL de la API
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -43,8 +41,8 @@ const CheckoutForm: React.FC = () => {
     setErrorMessage('');
 
     try {
-      // Llama a tu backend para crear un PaymentIntent
-      const response = await axios.post('http://localhost:5000/api/payments/create-payment-intent', {
+      // Llama a tu backend para crear un PaymentIntent usando la variable de entorno para la URL
+      const response = await axios.post(`${API_URL}/payments/create-payment-intent`, {
         amount: 1000, // Monto en centavos (por ejemplo, $10.00)
         currency: 'usd',
       });
@@ -64,7 +62,7 @@ const CheckoutForm: React.FC = () => {
         if (result.paymentIntent?.status === 'succeeded') {
           // Pago exitoso
           console.log('¡Pago exitoso!');
-          // Puedes redirigir al usuario o mostrar un mensaje de éxito
+          // Aquí puedes redirigir al usuario o mostrar un mensaje de éxito
         }
       }
     } catch (error) {

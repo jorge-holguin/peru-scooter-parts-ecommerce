@@ -7,7 +7,6 @@ interface User {
   name: string;
   email: string;
   role: string;
-  // Agrega otros campos si es necesario
 }
 
 // Definición de las props del contexto de autenticación
@@ -21,7 +20,7 @@ interface AuthContextProps {
 
 // Definición de las props para el AuthProvider
 interface AuthProviderProps {
-  children: ReactNode; // Definir children como ReactNode
+  children: ReactNode;
 }
 
 // Crear el contexto con un valor predeterminado
@@ -37,14 +36,22 @@ export const AuthContext = createContext<AuthContextProps>({
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
+  // Usar la variable de entorno para la URL de la API
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
   const login = async (email: string, password: string) => {
-    const response = await axios.post('http://localhost:5000/api/auth/login', {
-      email,
-      password,
-    });
-    const { token, user } = response.data;
-    localStorage.setItem('token', token);
-    setUser(user);
+    try {
+      const response = await axios.post(`${API_URL}/auth/login`, {
+        email,
+        password,
+      });
+      const { token, user } = response.data;
+      localStorage.setItem('token', token);
+      setUser(user);
+    } catch (error) {
+      console.error('Error al iniciar sesión:', error);
+      throw new Error('No se pudo iniciar sesión. Por favor, revisa tus credenciales.');
+    }
   };
 
   const logout = () => {
@@ -58,7 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Obtener el usuario actual con el token
       const fetchUser = async () => {
         try {
-          const response = await axios.get('http://localhost:5000/api/auth/me', {
+          const response = await axios.get(`${API_URL}/auth/me`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -71,7 +78,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
       fetchUser();
     }
-  }, []);
+  }, [API_URL]);
 
   return (
     <AuthContext.Provider

@@ -12,19 +12,36 @@ interface Order {
 
 const ProfilePage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // Estado para controlar la carga
+  const [error, setError] = useState<string | null>(null);
+
+  // Usar la variable de entorno para la URL de la API
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
     const fetchOrders = async () => {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/orders/myorders', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setOrders(response.data.orders);
+      if (!token) {
+        setError('No estás autenticado.');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await axios.get(`${API_URL}/orders/myorders`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setOrders(response.data.orders);
+      } catch (err) {
+        setError('Error al obtener los pedidos. Por favor, intenta nuevamente.');
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchOrders();
-  }, []);
+  }, [API_URL]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -34,7 +51,11 @@ const ProfilePage: React.FC = () => {
       <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">
         Mis Pedidos
       </h2>
-      {orders.length === 0 ? (
+      {isLoading ? (
+        <p className="text-gray-600 dark:text-gray-300">Cargando...</p>
+      ) : error ? (
+        <p className="text-red-600 dark:text-red-400">{error}</p>
+      ) : orders.length === 0 ? (
         <p className="text-gray-600 dark:text-gray-300">
           No tienes pedidos realizados.
         </p>

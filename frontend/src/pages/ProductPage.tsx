@@ -24,20 +24,21 @@ const ProductPage: React.FC = () => {
   const { addToCart } = useContext(CartContext);
   const { addToWishlist } = useContext(WishlistContext);
 
+  // Usar la variable de entorno para la URL de la API
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/products/${id}`
-        );
-        // Si el producto está directamente en response.data
+        // Actualizar la solicitud para usar la variable de entorno
+        const response = await axios.get(`${API_URL}/products/${id}`);
         setProduct(response.data);
       } catch (error) {
         console.error('Error al obtener el producto:', error);
       }
     };
     fetchProduct();
-  }, [id]);
+  }, [id, API_URL]);
 
   const handleAddToCart = () => {
     if (product) {

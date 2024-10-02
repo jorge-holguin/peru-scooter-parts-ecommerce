@@ -6,18 +6,28 @@ const RegisterPage: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // Reemplazar useHistory por useNavigate
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
+
+  // Usar la variable de entorno para la URL de la API
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/auth/register', {
+      setErrorMessage(''); // Limpiar cualquier mensaje de error previo
+      await axios.post(`${API_URL}/auth/register`, {
         name,
         email,
         password,
       });
-      navigate('/login'); // Reemplazar history.push por navigate
-    } catch (error) {
+      navigate('/login'); // Redirigir a la página de inicio de sesión después del registro
+    } catch (error: any) {
+      if (error.response && error.response.data) {
+        setErrorMessage(error.response.data.message || 'Error al registrar');
+      } else {
+        setErrorMessage('Error en la conexión con el servidor.');
+      }
       console.error('Error al registrar:', error);
     }
   };
@@ -28,6 +38,11 @@ const RegisterPage: React.FC = () => {
         <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
           Regístrate
         </h2>
+        {errorMessage && (
+          <div className="text-red-600 dark:text-red-400 mb-4">
+            {errorMessage}
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
