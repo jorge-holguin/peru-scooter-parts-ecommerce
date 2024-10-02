@@ -33,28 +33,34 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
 }) => {
   const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
 
+  // URL base de la API
+  const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
   // Obtener el token del localStorage
   const getToken = () => localStorage.getItem('token');
+
+  // Generar las cabeceras de autorización para las solicitudes
+  const getAuthHeaders = () => {
+    const token = getToken();
+    if (token) {
+      return { Authorization: `Bearer ${token}` };
+    }
+    return {};
+  };
 
   // Cargar la lista de deseos desde el backend al montar el componente
   useEffect(() => {
     const fetchWishlist = async () => {
       try {
-        const token = getToken();
-        if (!token) {
+        const headers = getAuthHeaders();
+        if (!headers.Authorization) {
           console.error('No se encontró el token en localStorage');
           return;
         }
 
-        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-        console.log('Haciendo petición GET para cargar la lista de deseos con el token:', token);
+        console.log('Haciendo petición GET para cargar la lista de deseos con las cabeceras:', headers);
 
-        const response = await axios.get(`${apiUrl}/wishlist`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
+        const response = await axios.get(`${apiUrl}/wishlist`, { headers });
         console.log('Respuesta del servidor al cargar lista de deseos:', response.data);
         setWishlistItems(response.data.wishlist || []); // Actualizar estado con la lista de deseos
       } catch (error) {
@@ -63,33 +69,22 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
     };
 
     fetchWishlist();
-  }, []);
+  }, [apiUrl]);
 
   // Función para añadir un producto a la lista de deseos en el backend y actualizar el estado local
   const addToWishlist = async (product: Product) => {
     try {
-      const token = getToken();
-      if (!token) {
+      const headers = getAuthHeaders();
+      if (!headers.Authorization) {
         console.error('No se encontró el token en localStorage');
         return;
       }
 
-      console.log('Token utilizado para agregar a lista de deseos:', token);
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-
-      // Enviar `productId` como propiedad en el cuerpo de la solicitud
+      console.log('Cabeceras utilizadas para agregar a lista de deseos:', headers);
       const requestBody = { productId: product._id };
       console.log('Cuerpo de la solicitud para agregar a lista de deseos:', requestBody);
 
-      const response = await axios.post(
-        `${apiUrl}/wishlist`,
-        requestBody, // Enviar correctamente el ID del producto
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.post(`${apiUrl}/wishlist`, requestBody, { headers });
 
       if (response.status === 200) {
         console.log('Producto agregado a la lista de deseos en el backend:', product.name);
@@ -105,22 +100,16 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({
   // Función para remover un producto de la lista de deseos en el backend y actualizar el estado local
   const removeFromWishlist = async (productId: string) => {
     try {
-      const token = getToken();
-      if (!token) {
+      const headers = getAuthHeaders();
+      if (!headers.Authorization) {
         console.error('No se encontró el token en localStorage');
         return;
       }
 
-      console.log('Token utilizado para remover de lista de deseos:', token);
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-
+      console.log('Cabeceras utilizadas para remover de lista de deseos:', headers);
       console.log('Cuerpo de la solicitud para eliminar de lista de deseos:', { productId });
 
-      const response = await axios.delete(`${apiUrl}/wishlist/${productId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.delete(`${apiUrl}/wishlist/${productId}`, { headers });
 
       if (response.status === 200) {
         console.log('Producto removido de la lista de deseos en el backend:', productId);
