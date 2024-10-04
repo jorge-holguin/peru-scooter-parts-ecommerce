@@ -1,13 +1,15 @@
-import React, { createContext, useState, ReactNode } from 'react';
+// src/context/OrderContext.tsx
+import React, { createContext, ReactNode } from 'react';
 import axios from 'axios';
 
-// Definir la estructura de una orden
+interface OrderItem {
+  product: string;
+  quantity: number;
+}
+
 interface Order {
-  _id?: string;
-  orderItems: {
-    product: string;
-    quantity: number;
-  }[];
+  _id: string;
+  orderItems: OrderItem[];
   shippingAddress: {
     address: string;
     city: string;
@@ -20,97 +22,93 @@ interface Order {
   shippingPrice: number;
   totalPrice: number;
   isPaid: boolean;
-  paidAt?: Date;
   isDelivered: boolean;
-  deliveredAt?: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
-// Definir las props del contexto de ordenes
 interface OrderContextProps {
-  orders: Order[];
-  createOrder: (order: Order) => Promise<void>;
+  createOrder: (orderData: Partial<Order>) => Promise<void>;
   getOrderById: (orderId: string) => Promise<Order | null>;
-  setOrders: React.Dispatch<React.SetStateAction<Order[]>>;
+  updateOrderToPaid: (orderId: string, paymentResult: any) => Promise<Order | null>;
 }
 
-// Definir las props para el `OrderProvider`
 interface OrderProviderProps {
   children: ReactNode;
 }
 
 // Crear el contexto con valores iniciales predeterminados
 export const OrderContext = createContext<OrderContextProps>({
-  orders: [],
   createOrder: async () => {},
   getOrderById: async () => null,
-  setOrders: () => {},
+  updateOrderToPaid: async () => null,
 });
 
-// Definir el `OrderProvider`
+// Proveedor del contexto
 export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
-  const [orders, setOrders] = useState<Order[]>([]);
+  // Obtener el token del localStorage
+  const getToken = () => localStorage.getItem('token') || '';
+
+  // Usar la variable de entorno para la URL de la API
   const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-  // Obtener el token del localStorage
-  const getToken = () => localStorage.getItem('token');
-
-  // Generar las cabeceras de autorización para las solicitudes
-  const getAuthHeaders = () => {
+  // Función para crear un nuevo pedido
+  const createOrder = async (orderData: Partial<Order>) => {
     const token = getToken();
-    if (token) {
-      return { Authorization: `Bearer ${token}` };
-    }
-    return {};
-  };
-
-  // Crear una nueva orden en el backend
-  const createOrder = async (order: Order) => {
     try {
-      const headers = getAuthHeaders();
-      if (!headers.Authorization) {
-        console.error('No se encontró el token en localStorage');
-        return;
-      }
-
-      const response = await axios.post(`${apiUrl}/orders`, order, { headers });
-
-      if (response.status === 201) {
-        console.log('Orden creada con éxito:', response.data);
-        setOrders((prevOrders) => [...prevOrders, response.data]);
-      } else {
-        console.error(`Error al crear la orden: ${response.data.message}`);
-      }
+      const response = await axios.post(
+        `${apiUrl}/orders`,
+        orderData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log('Orden creada:', response.data);
     } catch (error) {
-      console.error('Error al crear la orden en el backend:', error);
+      console.error('Error al crear la orden:', error);
     }
   };
 
-  // Obtener una orden específica por su ID
+  // Función para obtener un pedido por ID
   const getOrderById = async (orderId: string): Promise<Order | null> => {
+    const token = getToken();
     try {
-      const headers = getAuthHeaders();
-      if (!headers.Authorization) {
-        console.error('No se encontró el token en localStorage');
-        return null;
-      }
-
-      const response = await axios.get(`${apiUrl}/orders/${orderId}`, { headers });
-
-      if (response.status === 200) {
-        console.log('Orden obtenida con éxito:', response.data);
-        return response.data;
-      } else {
-        console.error(`Error al obtener la orden: ${response.data.message}`);
-        return null;
-      }
+      const response = await axios.get(`${apiUrl}/orders/${orderId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
     } catch (error) {
-      console.error('Error al obtener la orden del backend:', error);
+      console.error('Error al obtener el pedido:', error);
+      return null;
+    }
+  };
+
+  // Función para actualizar el pedido a pagado
+  const updateOrderToPaid = async (orderId: string, paymentResult: any): Promise<Order | null> => {
+    const token = getToken();
+    try {
+      const response = await axios.put(
+        `${apiUrl}/orders/${orderId}/pay`,
+        paymentResult,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error al actualizar el estado del pago:', error);
       return null;
     }
   };
 
   return (
-    <OrderContext.Provider value={{ orders, createOrder, getOrderById, setOrders }}>
+    <OrderContext.Provider value={{ createOrder, getOrderById, updateOrderToPaid }}>
       {children}
     </OrderContext.Provider>
   );
