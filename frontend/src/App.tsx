@@ -15,11 +15,12 @@ import AuthSuccess from './pages/AuthSuccess';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ChatWidget from './components/ChatWidget';
-import PrivateRoute from './components/PrivateRoute'; // Asegúrate de importar correctamente PrivateRoute
+import PrivateRoute from './components/PrivateRoute'; 
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import ThankYouPage from './pages/ThankYouPage';
 import { WishlistProvider } from './context/WishlistContext';
+import { OrderProvider } from './context/OrderContext'; 
 
 const stripePromise = loadStripe('pk_test_51Pz5mwHPZjnsfqM1Kb3T08Vb873Wp1QUrXQvjwyZdjFUsDqsl3JoEyTBPRrrc5V47mLNxotRRWz97BR6wgjzMdAx00smlQsB51');
 
@@ -28,6 +29,7 @@ const App: React.FC = () => {
     <ThemeProvider>
       <AuthProvider>
         <CartProvider>
+        <OrderProvider>
         <WishlistProvider>
         <Elements stripe={stripePromise}>
           <Router>
@@ -59,6 +61,7 @@ const App: React.FC = () => {
           </Router>
           </Elements>
           </WishlistProvider>
+          </OrderProvider>
         </CartProvider>
       </AuthProvider>
     </ThemeProvider>

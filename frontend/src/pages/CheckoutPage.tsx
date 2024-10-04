@@ -7,6 +7,7 @@ import {
 } from '@stripe/react-stripe-js';
 import axios from 'axios';
 import { CartContext } from '../context/CartContext';
+import { OrderContext } from '../context/OrderContext'; // Importar el contexto de órdenes
 import { useNavigate } from 'react-router-dom';
 
 const CARD_ELEMENT_OPTIONS: CardElementProps['options'] = {
@@ -30,13 +31,22 @@ const CARD_ELEMENT_OPTIONS: CardElementProps['options'] = {
 const CheckoutForm: React.FC = () => {
   const stripe = useStripe();
   const elements = useElements();
-  const { totalPrice, clearCart } = useContext(CartContext);
+  const { totalPrice, clearCart, cartItems } = useContext(CartContext);
+  const { createOrder } = useContext(OrderContext); // Usar el contexto de órdenes
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   // Usar la variable de entorno para la URL de la API
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
+  // Definir la dirección de envío (puedes ajustar esto según tus necesidades)
+  const shippingAddress = {
+    address: '123 Calle Falsa',
+    city: 'Lima',
+    postalCode: '15000',
+    country: 'Perú',
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -73,9 +83,27 @@ const CheckoutForm: React.FC = () => {
         if (result.paymentIntent?.status === 'succeeded') {
           // Pago exitoso
           console.log('¡Pago exitoso!');
+
+          // Crear una nueva orden en el backend
+          await createOrder({
+            orderItems: cartItems.map((item) => ({
+              product: item.product._id,
+              quantity: item.quantity,
+            })),
+            shippingAddress,
+            paymentMethod: 'Tarjeta',
+            itemsPrice: totalPrice,
+            taxPrice: 0,
+            shippingPrice: 5,
+            totalPrice,
+            isPaid: true,
+            isDelivered: false,
+          });
+
           // Limpiar el carrito
           clearCart();
-          // Redirigir o mostrar mensaje de éxito
+
+          // Redirigir a la página de agradecimiento
           navigate('/thank-you');
         }
       }
