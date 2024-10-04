@@ -7,6 +7,7 @@ interface Order {
   totalPrice: number;
   isPaid: boolean;
   createdAt: string;
+  // Agrega otros campos según tu modelo
 }
 
 const ProfilePage: React.FC = () => {
@@ -27,13 +28,12 @@ const ProfilePage: React.FC = () => {
       }
 
       try {
-        // Cambia el endpoint para que coincida con `/orders` 
         const response = await axios.get(`${API_URL}/orders`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        setOrders(response.data.orders || response.data); // Ajuste según la estructura de datos recibida
+        setOrders(response.data.orders);
       } catch (err) {
         setError('Error al obtener los pedidos. Por favor, intenta nuevamente.');
       } finally {
