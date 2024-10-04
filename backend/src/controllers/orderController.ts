@@ -92,3 +92,16 @@ export const updateOrderToPaid = async (req: AuthRequest, res: Response) => {
     });
   }
 };
+
+// Obtener todas las órdenes del usuario autenticado
+export const getMyOrders = async (req: AuthRequest, res: Response) => {
+  try {
+    const orders = await Order.find({ user: req.user.id }).populate('orderItems.product', 'name price');
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error al obtener las órdenes del usuario',
+      error: error instanceof Error ? error.message : 'Error desconocido',
+    });
+  }
+};
