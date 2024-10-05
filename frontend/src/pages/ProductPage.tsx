@@ -30,8 +30,8 @@ const ProductPage: React.FC = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        // Actualizar la solicitud para usar la variable de entorno
         const response = await axios.get(`${API_URL}/products/${id}`);
+        console.log('Datos del producto:', response.data); // Verifica si los datos son correctos
         setProduct(response.data);
       } catch (error) {
         console.error('Error al obtener el producto:', error);
@@ -39,6 +39,7 @@ const ProductPage: React.FC = () => {
     };
     fetchProduct();
   }, [id, API_URL]);
+  
 
   const handleAddToCart = () => {
     if (product) {
