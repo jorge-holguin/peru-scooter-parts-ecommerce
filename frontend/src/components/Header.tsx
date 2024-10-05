@@ -38,18 +38,18 @@ const Header: React.FC = () => {
           >
             Inicio
           </Link>
-          <Link
+          {/* <Link
             to="/products"
             className="text-gray-800 dark:text-white hover:text-indigo-600"
           >
             Productos
-          </Link>
-          <Link
+          </Link> */}
+          {/* <Link
             to="/chat"
             className="text-gray-800 dark:text-white hover:text-indigo-600"
           >
             Soporte
-          </Link>
+          </Link> */}
         </nav>
         <div className="flex items-center space-x-4">
           <Link to="/wishlist" className="text-gray-800 dark:text-white relative">
