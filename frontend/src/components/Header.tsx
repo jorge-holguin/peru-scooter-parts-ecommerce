@@ -32,12 +32,12 @@ const Header: React.FC = () => {
           Peru Scooter Parts
         </Link>
         <nav className="hidden md:flex space-x-6">
-          <Link
+          {/* <Link
             to="/"
             className="text-gray-800 dark:text-white hover:text-indigo-600"
           >
             Inicio
-          </Link>
+          </Link> */}
           {/* <Link
             to="/products"
             className="text-gray-800 dark:text-white hover:text-indigo-600"
