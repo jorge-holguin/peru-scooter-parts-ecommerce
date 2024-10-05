@@ -1,4 +1,3 @@
-// src/pages/ProductPage.tsx
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
@@ -19,42 +18,51 @@ interface Product {
 const ProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
+  const [error, setError] = useState<string | null>(null); // Para manejar errores
+  const [loading, setLoading] = useState(true); // Para mostrar un indicador de carga
   const { user } = useContext(AuthContext);
   const { addToCart } = useContext(CartContext);
   const { addToWishlist } = useContext(WishlistContext);
 
-  const API_URL = process.env.REACT_APP_API_URL;
+  // Definir la URL de la API usando la variable de entorno
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
+    // Validar si el ID existe antes de hacer la solicitud
+    if (!id) {
+      setError('ID de producto no especificado');
+      setLoading(false);
+      return;
+    }
+
     const fetchProduct = async () => {
-      setLoading(true);
       try {
+        setLoading(true);
         const response = await axios.get(`${API_URL}/products/${id}`);
+        console.log('Respuesta del producto:', response.data);
         setProduct(response.data);
       } catch (err) {
         console.error('Error al obtener el producto:', err);
-        setError('No se pudo cargar el producto. Intenta nuevamente.');
+        setError('Error al cargar el producto. Por favor, intenta nuevamente.');
       } finally {
-        setLoading(false);
+        setLoading(false); // Terminar la carga
       }
     };
+
     fetchProduct();
   }, [id, API_URL]);
 
-  const handleAddToCart = () => {
-    if (product) addToCart(product, 1);
-  };
+  if (loading) {
+    return <div className="text-center mt-20">Cargando producto...</div>;
+  }
 
-  const handleAddToWishlist = () => {
-    if (product) addToWishlist(product);
-  };
+  if (error) {
+    return <div className="text-center mt-20 text-red-600">{error}</div>;
+  }
 
-  if (loading) return <div>Cargando...</div>;
-  if (error) return <div className="text-red-600 dark:text-red-400">{error}</div>;
-  if (!product) return <div>Producto no encontrado.</div>;
+  if (!product) {
+    return <div className="text-center mt-20">Producto no encontrado.</div>;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -73,10 +81,12 @@ const ProductPage: React.FC = () => {
           <p className="text-xl text-indigo-600 font-semibold mt-2">
             S/ {product.price}
           </p>
-          <p className="mt-4 text-gray-600 dark:text-gray-300">{product.description}</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">
+            {product.description}
+          </p>
           <div className="mt-6 flex items-center space-x-4">
             <button
-              onClick={handleAddToCart}
+              onClick={() => addToCart(product, 1)}
               className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
             >
               <ShoppingCart className="mr-2" size={20} />
@@ -84,7 +94,7 @@ const ProductPage: React.FC = () => {
             </button>
             {user && (
               <button
-                onClick={handleAddToWishlist}
+                onClick={() => addToWishlist(product)}
                 className="flex items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded hover:bg-gray-300 dark:hover:bg-gray-600"
               >
                 <Heart className="mr-2" size={20} />
