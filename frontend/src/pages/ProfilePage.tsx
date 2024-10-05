@@ -33,7 +33,9 @@ const ProfilePage: React.FC = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setOrders(response.data.orders);
+
+        console.log('Estructura de la respuesta:', response.data); // Verificar la estructura de la respuesta
+        setOrders(response.data); // Ajuste para recibir un array directamente
       } catch (err) {
         setError('Error al obtener los pedidos. Por favor, intenta nuevamente.');
       } finally {
