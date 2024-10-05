@@ -12,50 +12,49 @@ interface Product {
   name: string;
   description: string;
   price: number;
-  images: string; // Si solo usas una imagen
+  images: string;
   stock: number;
-  // Agrega otros campos según tu modelo
 }
 
 const ProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const { user } = useContext(AuthContext);
   const { addToCart } = useContext(CartContext);
   const { addToWishlist } = useContext(WishlistContext);
 
-  // Usar la variable de entorno para la URL de la API
   const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchProduct = async () => {
+      setLoading(true);
       try {
         const response = await axios.get(`${API_URL}/products/${id}`);
-        console.log('Datos del producto:', response.data); // Verifica si los datos son correctos
         setProduct(response.data);
-      } catch (error) {
-        console.error('Error al obtener el producto:', error);
+      } catch (err) {
+        console.error('Error al obtener el producto:', err);
+        setError('No se pudo cargar el producto. Intenta nuevamente.');
+      } finally {
+        setLoading(false);
       }
     };
     fetchProduct();
   }, [id, API_URL]);
-  
 
   const handleAddToCart = () => {
-    if (product) {
-      addToCart(product, 1);
-    }
+    if (product) addToCart(product, 1);
   };
 
   const handleAddToWishlist = () => {
-    if (product) {
-      addToWishlist(product);
-    }
+    if (product) addToWishlist(product);
   };
 
-  if (!product) {
-    return <div>Cargando...</div>;
-  }
+  if (loading) return <div>Cargando...</div>;
+  if (error) return <div className="text-red-600 dark:text-red-400">{error}</div>;
+  if (!product) return <div>Producto no encontrado.</div>;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -74,9 +73,7 @@ const ProductPage: React.FC = () => {
           <p className="text-xl text-indigo-600 font-semibold mt-2">
             S/ {product.price}
           </p>
-          <p className="mt-4 text-gray-600 dark:text-gray-300">
-            {product.description}
-          </p>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">{product.description}</p>
           <div className="mt-6 flex items-center space-x-4">
             <button
               onClick={handleAddToCart}

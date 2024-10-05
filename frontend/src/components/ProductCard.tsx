@@ -22,34 +22,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToWishlist } = useContext(WishlistContext);
   const navigate = useNavigate();
 
-  const handleAddToCart = async () => {
-    try {
-      addToCart(product, 1); // Actualizar el estado local del carrito si se usa el contexto
-      alert('Producto agregado al carrito');
-    } catch (error) {
-      console.error('Error al agregar al carrito:', error);
-      alert('Ocurrió un error al agregar al carrito');
-    }
+  const handleAddToCart = () => {
+    addToCart(product, 1);
   };
 
-  const handleAddToWishlist = async () => {
-    try {
-      
-      addToWishlist(product); // Asegúrate de actualizar el estado global de wishlist
-    } catch (error) {
-      console.error('Error al agregar a la lista de deseos:', error);
-      alert('Ocurrió un error al agregar a la lista de deseos');
-    }
+  const handleAddToWishlist = () => {
+    addToWishlist(product);
   };
-  
 
-  const handleBuyNow = async () => {
-    try {
-      await handleAddToCart();
-      navigate('/checkout');
-    } catch (error) {
-      console.error('Error al procesar la compra:', error);
-    }
+  const handleBuyNow = () => {
+    handleAddToCart();
+    navigate('/checkout');
   };
 
   return (
